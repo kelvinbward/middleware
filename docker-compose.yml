@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: middleware-app-1
+    restart: unless-stopped
+    ports:
+      # Expose locally for dev/cluster access
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - POSTGRES_DB=resume_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    networks:
+      - web_gateway
+    volumes:
+      # Mount data for "Export" feature (resume.json)
+      # This needs to align with where the Frontend expects it, or a shared volume.
+      # For now, we mount it to a local 'data' folder for verification.
+      - ./data:/frontend
+
+networks:
+  web_gateway:
+    external: true

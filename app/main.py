@@ -23,29 +23,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mock Data Config
+from app.core.database import get_db
+from app.crud.resume import get_latest_resume
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# Mock Data Config (Fallback)
 USE_MOCK = os.getenv("DATA_SOURCE") == "json"
 MOCK_FILE_PATH = os.getenv("MOCK_FILE_PATH", "./app/data/resume.json")
 
-# Placeholder for DB Logic (to be implemented in Phase 2)
-async def get_latest_resume_from_db():
-    # This will use SQLAlchemy/databases in Phase 2
-    return None
-
 @app.get("/api/resume", response_model=Resume)
-async def get_resume():
+async def get_resume(db: AsyncSession = Depends(get_db)):
     if USE_MOCK:
         try:
             with open(MOCK_FILE_PATH, "r") as f:
                 return json.load(f)
         except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error reading mock data: {str(e)}"
-            )
+            # Fallback or error logic
+            pass
     
-    resume_row = await get_latest_resume_from_db()
+    resume_row = await get_latest_resume(db)
+    
     if not resume_row:
+        # Fallback to Mock if DB empty? Or 404.
+        # Let's stick to 404 for now to be explicit.
+        if USE_MOCK: # If mock was intended but file failed, try DB? No, stick to config.
+             pass 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Resume not found"
@@ -53,19 +55,20 @@ async def get_resume():
     return format_resume(resume_row)
 
 @app.get("/api/resume/export", dependencies=[Depends(verify_admin_key)])
-async def export_resume():
+async def export_resume(db: AsyncSession = Depends(get_db)):
     """
     Export DB content to a static JSON file.
     Protected by admin key.
     """
-    resume_row = await get_latest_resume_from_db()
+    resume_row = await get_latest_resume(db)
     if not resume_row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No resume data to export"
         )
     
-    resume_data = format_resume(resume_row).dict()
+    # helper to convert ORM to Pydantic, then dict
+    resume_data = format_resume(resume_row).model_dump()
     export_path = "/frontend/resume.json" # Volume mount point
     
     try:
