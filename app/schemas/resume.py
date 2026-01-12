@@ -27,7 +27,7 @@ class Resume(BaseModel):
     objective: str
     about: str
     experience: List[dict] = Field(default_factory=list)
-    skills: List[dict] = Field(default_factory=list)
+    skills: List[str] = Field(default_factory=list)
     certifications: List[str] = Field(default_factory=list)
     education: List[dict] = Field(default_factory=list)
     links: Dict[str, str] = Field(default_factory=dict)
