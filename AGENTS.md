@@ -1,24 +1,23 @@
-# 🧠 Service: Middleware
+# 🧠 Service: Middleware Spoke
 
 ## 📋 Service Role
-Backend logic layer (Python/FastAPI) facilitating communications and data processing for the ecosystem.
+**Logic Layer & Integrator**.
+- **Target Hub**: `kelvinbward`
+- **Stack**: FastAPI (Python).
 
 ## 📡 Service Topology
 | Context | Hostname | Port | Visibility |
 | :--- | :--- | :--- | :--- |
-| **Cluster** | `middleware-app-1` | `5000` | Internal (Gateway routed) |
-| **Standalone** | `localhost` | `8000` | Public (Dev Mode) |
+| **App** | `middleware-app-1` | `5000` | Internal |
 
 ## 🚀 Execution Modes
-- **Cluster**: `docker compose up` (Managed by `pi-cluster-configs`).
-- **Standalone**: `docker compose -f docker-compose.standalone.yml up`.
+| Mode | Config | Command | Description |
+| :--- | :--- | :--- | :--- |
+| **Cluster** | `docker-compose.yml` | `docker compose up -d` | Prod. |
+| **Standalone** | `docker-compose.standalone.yml` | `docker compose -f ... up` | **Port 8000**. Local dev. |
 
 ## 🔄 Handoff Protocol
-1.  **Session Log**: Create entry in `pi-cluster-configs/logs/sessions/`.
-2.  **State Sync**: Update `pi-cluster-configs/STATE.md` if dependencies change.
-3.  **Cleanup**: Run `../kelvinbward/scripts/git_cleanup.sh` before new tasks.
+1.  **Env**: Requires `secrets.env` (mocked in Standalone).
 
 ## 🤝 Collaborative Workflow
-- **Branching**: `feature/`, `fix/`, `infra/`.
-- **Review**: Generate Direct Link for User PR creation.
-- **Secrets**: NEVER commit. Use `secrets.env` template.
+- **Branching**: `feature/` (Logic updates).
