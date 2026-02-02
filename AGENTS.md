@@ -18,6 +18,7 @@
 
 ## 🔄 Handoff Protocol
 1.  **Env**: Requires `secrets.env` (mocked in Standalone).
+2.  **Workflow**: Push to `feature/` branch. Create PR to `main`.
 
 ## 🤝 Collaborative Workflow
 - **Branching**: `feature/` (Logic updates).
