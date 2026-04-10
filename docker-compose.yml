@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     ports:
       # Expose locally for dev/cluster access
-      - "5000:5000"
+      - "5001:5000"
     env_file:
       - .env
     environment:
